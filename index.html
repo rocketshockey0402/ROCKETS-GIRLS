@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>로켓걸스</title>
 <!-- ▼ 여기 한 줄만 바꾸면 됨: Apps Script 웹앱 URL (…/exec) -->
 <script>const APP_URL = "https://script.google.com/macros/s/AKfycby_vUhoXFbwBu2JmgzCIEFSBV8cSmjnxu_oL-aBd6Qm8cX7NDFOpVokckniTDUS9Hxd/exec";</script>
@@ -15,8 +15,9 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#1b2a4a">
 <style>
-  html,body{margin:0;height:100%;background:#fff;overflow:hidden}
-  iframe{border:0;width:100%;height:100%;height:100dvh;display:block}
+  html,body{margin:0;padding:0;height:100%;background:#fff;overflow:hidden;position:fixed;inset:0;width:100%}
+  body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  iframe{border:0;display:block;width:100%;height:100%}
   .err{font-family:-apple-system,sans-serif;padding:40px 20px;text-align:center;color:#555}
 </style>
 </head>
