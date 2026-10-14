@@ -23,8 +23,15 @@
 </head>
 <body>
 <script>
+const LS=(k,v)=>{ try{ if(v===undefined) return localStorage.getItem(k); if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){ return null; } };
 if(/^https:\/\/script\.google\.com\//.test(APP_URL)){
-  document.write('<iframe src="'+APP_URL+'" allow="clipboard-write"></iframe>');
+  let s=null; try{ s=JSON.parse(LS('rg-launch')||'null'); }catch(e){}
+  const src = (s&&s.name&&s.pin) ? APP_URL+'?u='+encodeURIComponent(s.name)+'&p='+encodeURIComponent(s.pin) : APP_URL;
+  document.write('<iframe src="'+src+'" allow="clipboard-write"></iframe>');
+  // 앱이 로그인/로그아웃하면 이 페이지(홈 화면 앱)에 저장 → 껐다 켜도 유지
+  window.addEventListener('message',ev=>{ const m=ev.data; if(!m||!m.rg) return;
+    if(m.type==='login'&&m.name&&m.pin) LS('rg-launch',JSON.stringify({name:m.name,pin:m.pin}));
+    if(m.type==='logout') LS('rg-launch',null); });
 }else{
   document.write('<div class="err">rg-launcher.html 파일 안의 APP_URL에<br>앱 주소(…/exec)를 넣어주세요</div>');
 }
