@@ -21,6 +21,11 @@
   body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
   iframe{border:0;display:block;width:100%;height:100%}
   .err{font-family:-apple-system,sans-serif;padding:40px 20px;text-align:center;color:#555}
+  #ld{position:fixed;inset:0;background:#1b2a4a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:5;transition:opacity .25s}
+  #ld.off{opacity:0;pointer-events:none}
+  #ld img{width:96px;height:96px;border-radius:50%}
+  #ld .sp{width:22px;height:22px;border:3px solid rgba(255,255,255,.25);border-top-color:#7FC4F5;border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -30,10 +35,19 @@ if(/^https:\/\/script\.google\.com\//.test(APP_URL)){
   let s=null; try{ s=JSON.parse(LS('rg-launch')||'null'); }catch(e){}
   const src = APP_URL+'?l=2'+((s&&s.name&&s.pin) ? '&u='+encodeURIComponent(s.name)+'&p='+encodeURIComponent(s.pin) : '');
   document.write('<iframe src="'+src+'" allow="clipboard-write"></iframe>');
+  // 앱이 뜰 때까지: 네이비 배경 + 로고 + 로딩 표시
+  const icon=(document.querySelector('link[rel="apple-touch-icon"]')||{}).href||'';
+  document.write('<div id="ld">'+(icon?'<img src="'+icon+'" alt="">':'')+'<div class="sp"></div></div>');
+  const hideLd=()=>{ const l=document.getElementById('ld'); if(l) l.classList.add('off'); };
+  setTimeout(hideLd,8000);
   // 앱이 로그인/로그아웃하면 이 페이지(홈 화면 앱)에 저장 → 껐다 켜도 유지
   window.addEventListener('message',ev=>{ const m=ev.data; if(!m||!m.rg) return;
     if(m.type==='login'&&m.name&&m.pin) LS('rg-launch',JSON.stringify({name:m.name,pin:m.pin}));
-    if(m.type==='logout') LS('rg-launch',null); });
+    if(m.type==='logout'){ LS('rg-launch',null); LS('rg-data',null); }
+    if(m.type==='data'&&m.name&&m.data){ try{ LS('rg-data',JSON.stringify({name:m.name,t:Date.now(),data:m.data})); }catch(e){} }
+    if(m.type==='ready'){ hideLd();   // 앱 뼈대가 떴음 → 마지막 데이터가 있으면 바로 넘겨줌 (서버 응답 전 즉시 표시용)
+      let d=null; try{ d=JSON.parse(LS('rg-data')||'null'); }catch(e){}
+      if(d&&d.name&&d.data&&ev.source) try{ ev.source.postMessage({rg:1,type:'data',name:d.name,data:d.data},'*'); }catch(e){} } });
 }else{
   document.write('<div class="err">rg-launcher.html 파일 안의 APP_URL에<br>앱 주소(…/exec)를 넣어주세요</div>');
 }
