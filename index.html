@@ -17,8 +17,8 @@
 <style>
   html,body{margin:0;padding:0;height:100%;overflow:hidden;position:fixed;inset:0;width:100%}
   html{background:#1b2a4a}
-  body{background:linear-gradient(#1b2a4a 0 50%,#fff 50% 100%)} /* 위 상태바 영역 네이비, 아래 홈바 영역 흰색 */
-  body{box-sizing:border-box;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)} /* 패딩 포함 100% → iframe이 홈바 밑으로 밀리지 않게 */
+  body{background:#1b2a4a} /* 위 상태바 영역 네이비, 아래 홈바 영역 흰색 */
+  body{box-sizing:border-box;padding-top:env(safe-area-inset-top);padding-bottom:0}   /* 홈바 여백은 앱(탭바)이 한 번만 줌 → iframe은 화면 맨 아래까지 */ /* 패딩 포함 100% → iframe이 홈바 밑으로 밀리지 않게 */
   @supports(height:100dvh){ html,body{height:100dvh} }
   iframe{border:0;display:block;width:100%;height:100%}
   .err{font-family:-apple-system,sans-serif;padding:40px 20px;text-align:center;color:#555}
@@ -34,7 +34,10 @@
 const LS=(k,v)=>{ try{ if(v===undefined) return localStorage.getItem(k); if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){ return null; } };
 if(/^https:\/\/script\.google\.com\//.test(APP_URL)){
   let s=null; try{ s=JSON.parse(LS('rg-launch')||'null'); }catch(e){}
-  const src = APP_URL+'?l=2'+((s&&s.name&&s.pin) ? '&u='+encodeURIComponent(s.name)+'&p='+encodeURIComponent(s.pin) : '');
+  // iframe 안에서는 env(safe-area-inset-bottom)이 0이라, 여기서 재서 넘김
+  const pr=document.createElement('div'); pr.style.cssText='position:fixed;bottom:0;height:0;padding-bottom:env(safe-area-inset-bottom);visibility:hidden'; document.body.appendChild(pr);
+  const SB=Math.round(parseFloat(getComputedStyle(pr).paddingBottom)||0); pr.remove();
+  const src = APP_URL+'?l=2&sb='+SB+((s&&s.name&&s.pin) ? '&u='+encodeURIComponent(s.name)+'&p='+encodeURIComponent(s.pin) : '');
   document.write('<iframe src="'+src+'" allow="clipboard-write"></iframe>');
   // 앱이 뜰 때까지: 네이비 배경 + 로고 + 로딩 표시
   const icon=(document.querySelector('link[rel="apple-touch-icon"]')||{}).href||'';
