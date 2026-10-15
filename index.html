@@ -18,7 +18,8 @@
   html,body{margin:0;padding:0;height:100%;overflow:hidden;position:fixed;inset:0;width:100%}
   html{background:#1b2a4a}
   body{background:linear-gradient(#1b2a4a 0 50%,#fff 50% 100%)} /* 위 상태바 영역 네이비, 아래 홈바 영역 흰색 */
-  body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  body{box-sizing:border-box;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)} /* 패딩 포함 100% → iframe이 홈바 밑으로 밀리지 않게 */
+  @supports(height:100dvh){ html,body{height:100dvh} }
   iframe{border:0;display:block;width:100%;height:100%}
   .err{font-family:-apple-system,sans-serif;padding:40px 20px;text-align:center;color:#555}
   #ld{position:fixed;inset:0;background:#1b2a4a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:5;transition:opacity .25s}
