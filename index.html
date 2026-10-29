@@ -43,8 +43,11 @@ if(/^https:\/\/script\.google\.com\//.test(APP_URL)){
     const land=window.matchMedia('(orientation: landscape)').matches, sh=land?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height);
     const short=sa&&i.st>0&&Math.abs((sh-ih)-i.st)<=3;
     f.style.height=short?sh+'px':''; f.style.bottom=short?'auto':'';
-    if(/dbg=1/.test(location.search)){ let d=document.getElementById('dbg'); if(!d){ d=document.createElement('div'); d.id='dbg'; d.style.cssText='position:fixed;left:8px;top:50%;z-index:9;background:#000;color:#0f0;font:12px monospace;padding:6px;border-radius:6px;white-space:pre'; document.body.appendChild(d); }
-      d.textContent='standalone '+sa+'\ninnerH '+ih+'  screenH '+sh+'\nst '+i.st+'  sb '+i.sb+'\nfix '+(short?sh:'css'); } };
+    if(/dbg=1/.test(location.search)||window.__DBG){ let d=document.getElementById('dbg'); if(!d){ d=document.createElement('div'); d.id='dbg'; d.style.cssText='position:fixed;left:8px;top:50%;z-index:9;background:#000;color:#0f0;font:12px monospace;padding:6px;border-radius:6px;white-space:pre'; document.body.appendChild(d); }
+      const fr=f.getBoundingClientRect(), a=window.__DBG||{};
+      d.textContent='[런처] standalone '+sa+'\ninnerH '+ih+'  screenH '+sh+'  docH '+document.documentElement.clientHeight+'\nst '+i.st+'  sb '+i.sb+'  fix '+(short?sh:'css')+'\niframe top '+Math.round(fr.top)+' h '+Math.round(fr.height)
+        +(a.appH?'\n[앱 '+(a.ver||'')+'] innerH '+a.appH+'  sb '+a.sb+'  st '+a.st+'\nnav top '+a.navTop+' bottom '+a.navBottom+' h '+a.navH:'')+'\n(누르면 닫힘)';
+      d.onclick=()=>{ d.remove(); window.__DBG=null; }; } };
   fitFrame(); window.addEventListener('load',fitFrame);
   let APPWIN=null;   // 앱(안쪽 프레임) — 화면 회전 등으로 여백이 바뀌면 다시 알려줌
   const sendInsets=()=>{ if(!APPWIN) return; const i=insets(); try{ APPWIN.postMessage({rg:1,type:'insets',st:i.st,sb:i.sb},'*'); }catch(e){} };
@@ -62,6 +65,7 @@ if(/^https:\/\/script\.google\.com\//.test(APP_URL)){
       const l=document.getElementById('ld'); if(l) l.classList.remove('off');
       setTimeout(()=>location.replace(location.pathname),50); return; }
     if(m.type==='data'&&m.name&&m.data){ try{ LS('rg-data',JSON.stringify({name:m.name,t:Date.now(),data:m.data})); }catch(e){} }
+    if(m.type==='dbg'){ window.__DBG=m; fitFrame(); return; }
     if(m.type==='ready'){ hideLd(); APPWIN=ev.source||APPWIN; sendInsets();   // 앱 뼈대가 떴음 → 마지막 데이터가 있으면 바로 넘겨줌 (서버 응답 전 즉시 표시용)
       let d=null; try{ d=JSON.parse(LS('rg-data')||'null'); }catch(e){}
       if(d&&d.name&&d.data&&ev.source) try{ ev.source.postMessage({rg:1,type:'data',name:d.name,data:d.data},'*'); }catch(e){} } });
