@@ -49,6 +49,9 @@ if(/^https:\/\/script\.google\.com\//.test(APP_URL)){
         +(a.appH?'\n[앱 '+(a.ver||'')+'] innerH '+a.appH+'  sb '+a.sb+'  st '+a.st+'\nnav top '+a.navTop+' bottom '+a.navBottom+' h '+a.navH:'')+'\n(누르면 닫힘)';
       d.onclick=()=>{ d.remove(); window.__DBG=null; }; } };
   fitFrame(); window.addEventListener('load',fitFrame);
+  /* 점검 모드(임시): 열 때마다 화면 높이 숫자를 20초 동안 표시. 앱 값은 앱이 로그인 후 자동으로 보내줌 */
+  setTimeout(()=>{ window.__DBG=window.__DBG||{}; fitFrame(); },1500);
+  setTimeout(()=>{ const d=document.getElementById('dbg'); if(d) d.remove(); window.__DBG=null; },20000);
   let APPWIN=null;   // 앱(안쪽 프레임) — 화면 회전 등으로 여백이 바뀌면 다시 알려줌
   const sendInsets=()=>{ if(!APPWIN) return; const i=insets(); try{ APPWIN.postMessage({rg:1,type:'insets',st:i.st,sb:i.sb},'*'); }catch(e){} };
   window.addEventListener('resize',()=>{ fitFrame(); setTimeout(sendInsets,300); }); window.addEventListener('orientationchange',()=>setTimeout(()=>{ fitFrame(); sendInsets(); },400));
