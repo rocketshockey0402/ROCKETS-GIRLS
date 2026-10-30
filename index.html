@@ -68,6 +68,7 @@ if(/^https:\/\/script\.google\.com\//.test(APP_URL)){
       const l=document.getElementById('ld'); if(l) l.classList.remove('off');
       setTimeout(()=>location.replace(location.pathname),50); return; }
     if(m.type==='data'&&m.name&&m.data){ try{ LS('rg-data',JSON.stringify({name:m.name,t:Date.now(),data:m.data})); }catch(e){} }
+    if(m.type==='dim'){ const tc=document.querySelector('meta[name="theme-color"]'); if(tc) tc.setAttribute('content',m.on?'#14203A':'#1b2a4a'); return; }   // 앱 프로필 시트 열림 → 상태바도 같이 어둡게 (#1b2a4a 위 45% 어둠)
     if(m.type==='dbg'){ if(/dbg=1/.test(location.search)){ window.__DBG=m; fitFrame(); } return; }   // 점검 숫자는 주소에 ?dbg=1 일 때만
     if(m.type==='ready'){ hideLd(); APPWIN=ev.source||APPWIN; sendInsets();   // 앱 뼈대가 떴음 → 마지막 데이터가 있으면 바로 넘겨줌 (서버 응답 전 즉시 표시용)
       let d=null; try{ d=JSON.parse(LS('rg-data')||'null'); }catch(e){}
