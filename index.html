@@ -64,7 +64,8 @@ if(/^https:\/\/script\.google\.com\//.test(APP_URL)){
   /* 상태바 줄 색: 아이폰 홈 화면 앱은 meta 값만 바꾸면 안 바뀌는 경우가 있어서 meta를 새로 만들어 끼움 + 배경색도 같이 (theme-color 없을 때 대신 쓰는 값) */
   function setBar(c,dim){ try{ document.querySelectorAll('meta[name="theme-color"]').forEach(x=>x.remove()); const t=document.createElement('meta'); t.name='theme-color'; t.content=c; document.head.appendChild(t);
     document.documentElement.style.backgroundColor=dim?c:''; document.body.style.backgroundColor=dim?c:''; }catch(e){} }
-  window.addEventListener('message',ev=>{ const m=ev.data; if(!m||!m.rg) return;
+  const APP_ORIGIN_OK=o=>/^https:\/\/[\w.-]+\.googleusercontent\.com$/.test(o)||o==='https://script.google.com';   // 앱(Apps Script) 프레임에서 온 메시지만 받음
+  window.addEventListener('message',ev=>{ if(!APP_ORIGIN_OK(ev.origin)) return; const m=ev.data; if(!m||!m.rg) return;
     if(m.type==='login'&&m.name&&m.pin) LS('rg-launch',JSON.stringify({name:m.name,pin:m.pin}));
     if(m.type==='forget'){ LS('rg-launch',null); LS('rg-data',null); }   // 자동 로그인 해제만 (화면은 그대로)
     if(m.type==='logout'){ LS('rg-launch',null); LS('rg-data',null);   // 나가기 → 로딩 화면 띄우고 런처 전체 새로 열기 → 로그인 화면
